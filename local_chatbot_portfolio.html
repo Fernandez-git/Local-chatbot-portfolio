@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>John Fernandez - Interactive Portfolio</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+    
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .chat-container {
+      width: 100%;
+      max-width: 600px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+
+    .chat-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 25px;
+      text-align: center;
+      position: relative;
+    }
+
+    .profile-info {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 10px;
+    }
+
+    .profile-avatar {
+      width: 60px;
+      height: 60px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .profile-details h2 {
+      margin: 0;
+      font-size: 1.4em;
+      font-weight: 600;
+    }
+
+    .profile-details p {
+      margin: 5px 0 0 0;
+      opacity: 0.9;
+      font-size: 0.9em;
+    }
+
+    .status-indicator {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: #4CAF50;
+      border-radius: 50%;
+      margin-right: 8px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+
+    .chat-box {
+      flex: 1;
+      overflow-y: auto;
+      height: 450px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .message {
+      display: flex;
+      margin-bottom: 10px;
+      animation: fadeInUp 0.3s ease;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .message-content {
+      max-width: 85%;
+      padding: 12px 16px;
+      border-radius: 18px;
+      position: relative;
+      word-wrap: break-word;
+      line-height: 1.4;
+    }
+
+    .user .message-content {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      margin-left: auto;
+      border-bottom-right-radius: 4px;
+    }
+
+    .bot .message-content {
+      background: #f1f3f4;
+      color: #333;
+      border-bottom-left-radius: 4px;
+    }
+
+    .timestamp {
+      font-size: 0.7em;
+      opacity: 0.7;
+      margin-top: 4px;
+    }
+
+    .typing-indicator {
+      display: none;
+      padding: 12px 16px;
+      background: #f1f3f4;
+      border-radius: 18px;
+      border-bottom-left-radius: 4px;
+      margin-bottom: 10px;
+      max-width: 80%;
+    }
+
+    .typing-dots {
+      display: flex;
+      gap: 4px;
+    }
+
+    .typing-dots span {
+      width: 8px;
+      height: 8px;
+      background: #999;
+      border-radius: 50%;
+      animation: typing 1.4s infinite ease-in-out;
+    }
+
+    .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+    .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+    @keyframes typing {
+      0%, 80%, 100% {
+        transform: scale(0);
+        opacity: 0.5;
+      }
+      40% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .input-area {
+      padding: 20px;
+      background: #fafafa;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .input-container {
+      flex: 1;
+      position: relative;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px 20px;
+      border-radius: 25px;
+      border: 2px solid #e0e0e0;
+      font-family: 'Roboto', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    input:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .send-button {
+      padding: 14px 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-family: 'Roboto', sans-serif;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      min-width: 80px;
+    }
+
+    .send-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .send-button:active {
+      transform: translateY(0);
+    }
+
+    .send-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .welcome-message {
+      text-align: center;
+      color: #666;
+      padding: 20px;
+      border-radius: 15px;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+      margin-bottom: 20px;
+    }
+
+    .quick-replies {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 15px;
+      justify-content: center;
+    }
+
+    .quick-reply {
+      padding: 8px 14px;
+      background: rgba(102, 126, 234, 0.1);
+      border: 1px solid rgba(102, 126, 234, 0.3);
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    .quick-reply:hover {
+      background: rgba(102, 126, 234, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .skill-tag {
+      display: inline-block;
+      background: rgba(102, 126, 234, 0.1);
+      color: #667eea;
+      padding: 4px 8px;
+      margin: 2px;
+      border-radius: 12px;
+      font-size: 0.8em;
+      font-weight: 500;
+    }
+
+    .contact-info {
+      background: rgba(102, 126, 234, 0.05);
+      padding: 12px;
+      border-radius: 10px;
+      margin: 8px 0;
+      border-left: 3px solid #667eea;
+    }
+
+    .project-card {
+      background: #f8f9fa;
+      padding: 12px;
+      border-radius: 10px;
+      margin: 8px 0;
+      border-left: 3px solid #667eea;
+    }
+
+    .project-title {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 5px;
+    }
+
+    .chat-box::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .chat-box::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 3px;
+    }
+
+    .chat-box::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 3px;
+    }
+
+    .chat-box::-webkit-scrollbar-thumb:hover {
+      background: #a8a8a8;
+    }
+
+    /* Desktop Large (1200px+) */
+    @media (min-width: 1200px) {
+      .chat-container {
+        max-width: 700px;
+        height: 600px;
+      }
+      
+      .chat-box {
+        height: 500px;
+      }
+      
+      .profile-avatar {
+        width: 70px;
+        height: 70px;
+        font-size: 28px;
+      }
+      
+      .profile-details h2 {
+        font-size: 1.6em;
+      }
+      
+      input {
+        font-size: 16px;
+        padding: 16px 24px;
+      }
+      
+      .send-button {
+        padding: 16px 24px;
+        font-size: 16px;
+      }
+    }
+
+    /* Desktop Standard (992px - 1199px) */
+    @media (min-width: 992px) and (max-width: 1199px) {
+      .chat-container {
+        max-width: 650px;
+        height: 580px;
+      }
+      
+      .chat-box {
+        height: 480px;
+      }
+    }
+
+    /* Tablet (768px - 991px) */
+    @media (min-width: 768px) and (max-width: 991px) {
+      body {
+        padding: 15px;
+      }
+      
+      .chat-container {
+        max-width: 600px;
+        height: calc(100vh - 30px);
+        min-height: 500px;
+      }
+      
+      .chat-box {
+        height: calc(100vh - 200px);
+        min-height: 350px;
+      }
+      
+      .chat-header {
+        padding: 20px;
+      }
+      
+      .profile-avatar {
+        width: 55px;
+        height: 55px;
+        font-size: 22px;
+      }
+      
+      .profile-details h2 {
+        font-size: 1.3em;
+      }
+      
+      .quick-replies {
+        gap: 6px;
+      }
+      
+      .quick-reply {
+        padding: 6px 12px;
+        font-size: 11px;
+      }
+      
+      .message-content {
+        max-width: 80%;
+        padding: 10px 14px;
+      }
+      
+      input {
+        padding: 12px 18px;
+        font-size: 15px;
+      }
+      
+      .send-button {
+        padding: 12px 18px;
+        min-width: 70px;
+      }
+    }
+
+    /* Mobile Large (576px - 767px) */
+    @media (min-width: 576px) and (max-width: 767px) {
+      body {
+        padding: 10px;
+        align-items: stretch;
+      }
+      
+      .chat-container {
+        height: 100vh;
+        max-height: 100vh;
+        border-radius: 15px;
+        margin: 0;
+      }
+      
+      .chat-box {
+        height: calc(100vh - 180px);
+        padding: 15px;
+      }
+      
+      .chat-header {
+        padding: 18px;
+      }
+      
+      .profile-info {
+        gap: 12px;
+      }
+      
+      .profile-avatar {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+      }
+      
+      .profile-details h2 {
+        font-size: 1.2em;
+      }
+      
+      .profile-details p {
+        font-size: 0.85em;
+      }
+      
+      .quick-replies {
+        flex-wrap: wrap;
+        gap: 5px;
+      }
+      
+      .quick-reply {
+        flex: 1 1 calc(50% - 2.5px);
+        min-width: 120px;
+        padding: 8px 10px;
+        font-size: 10px;
+        text-align: center;
+      }
+      
+      .message-content {
+        max-width: 85%;
+        padding: 10px 12px;
+        font-size: 14px;
+      }
+      
+      .skill-tag {
+        font-size: 0.75em;
+        padding: 3px 6px;
+      }
+      
+      .input-area {
+        padding: 15px;
+        gap: 10px;
+      }
+      
+      input {
+        padding: 12px 16px;
+        font-size: 14px;
+      }
+      
+      .send-button {
+        padding: 12px 16px;
+        min-width: 65px;
+        font-size: 14px;
+      }
+    }
+
+    /* Mobile Standard (480px - 575px) */
+    @media (min-width: 480px) and (max-width: 575px) {
+      body {
+        padding: 5px;
+        align-items: stretch;
+      }
+      
+      .chat-container {
+        height: 100vh;
+        max-height: 100vh;
+        border-radius: 12px;
+        margin: 0;
+      }
+      
+      .chat-box {
+        height: calc(100vh - 170px);
+        padding: 12px;
+      }
+      
+      .chat-header {
+        padding: 15px;
+      }
+      
+      .profile-info {
+        flex-direction: column;
+        gap: 8px;
+      }
+      
+      .profile-avatar {
+        width: 45px;
+        height: 45px;
+        font-size: 18px;
+      }
+      
+      .profile-details h2 {
+        font-size: 1.1em;
+      }
+      
+      .profile-details p {
+        font-size: 0.8em;
+      }
+      
+      .quick-replies {
+        flex-direction: column;
+        gap: 4px;
+      }
+      
+      .quick-reply {
+        width: 100%;
+        padding: 8px;
+        font-size: 10px;
+        margin: 2px 0;
+      }
+      
+      .message-content {
+        max-width: 90%;
+        padding: 8px 10px;
+        font-size: 13px;
+      }
+      
+      .project-card, .contact-info {
+        padding: 8px;
+        margin: 4px 0;
+      }
+      
+      .skill-tag {
+        font-size: 0.7em;
+        padding: 2px 5px;
+        margin: 1px;
+      }
+      
+      .input-area {
+        padding: 12px;
+        gap: 8px;
+      }
+      
+      input {
+        padding: 10px 14px;
+        font-size: 13px;
+      }
+      
+      .send-button {
+        padding: 10px 14px;
+        min-width: 60px;
+        font-size: 13px;
+      }
+    }
+
+    /* Mobile Small (max-width: 479px) */
+    @media (max-width: 479px) {
+      body {
+        padding: 0;
+        align-items: stretch;
+      }
+      
+      .chat-container {
+        height: 100vh;
+        max-height: 100vh;
+        border-radius: 0;
+        margin: 0;
+      }
+      
+      .chat-box {
+        height: calc(100vh - 160px);
+        padding: 10px;
+      }
+      
+      .chat-header {
+        padding: 12px;
+      }
+      
+      .profile-info {
+        flex-direction: column;
+        gap: 6px;
+      }
+      
+      .profile-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+      }
+      
+      .profile-details h2 {
+        font-size: 1em;
+      }
+      
+      .profile-details p {
+        font-size: 0.75em;
+      }
+      
+      .welcome-message {
+        padding: 15px;
+        font-size: 14px;
+      }
+      
+      .quick-replies {
+        flex-direction: column;
+        gap: 3px;
+      }
+      
+      .quick-reply {
+        width: 100%;
+        padding: 6px;
+        font-size: 9px;
+        margin: 1px 0;
+      }
+      
+      .message-content {
+        max-width: 95%;
+        padding: 6px 8px;
+        font-size: 12px;
+        border-radius: 12px;
+      }
+      
+      .user .message-content {
+        border-bottom-right-radius: 3px;
+      }
+      
+      .bot .message-content {
+        border-bottom-left-radius: 3px;
+      }
+      
+      .timestamp {
+        font-size: 0.6em;
+        margin-top: 2px;
+      }
+      
+      .project-card, .contact-info {
+        padding: 6px;
+        margin: 3px 0;
+        font-size: 12px;
+      }
+      
+      .project-title {
+        font-size: 13px;
+      }
+      
+      .skill-tag {
+        font-size: 0.65em;
+        padding: 2px 4px;
+        margin: 1px;
+      }
+      
+      .typing-indicator {
+        padding: 6px 8px;
+      }
+      
+      .typing-dots span {
+        width: 6px;
+        height: 6px;
+      }
+      
+      .input-area {
+        padding: 8px;
+        gap: 6px;
+      }
+      
+      input {
+        padding: 8px 12px;
+        font-size: 12px;
+        border-radius: 20px;
+      }
+      
+      .send-button {
+        padding: 8px 12px;
+        min-width: 50px;
+        font-size: 12px;
+        border-radius: 20px;
+      }
+      
+      .chat-box::-webkit-scrollbar {
+        width: 4px;
+      }
+    }
+
+    /* Landscape orientation adjustments */
+    @media (max-height: 600px) and (orientation: landscape) {
+      .chat-container {
+        height: 100vh;
+        max-height: 100vh;
+      }
+      
+      .chat-box {
+        height: calc(100vh - 140px);
+      }
+      
+      .chat-header {
+        padding: 10px;
+      }
+      
+      .profile-info {
+        flex-direction: row;
+        gap: 10px;
+      }
+      
+      .profile-avatar {
+        width: 35px;
+        height: 35px;
+        font-size: 14px;
+      }
+      
+      .welcome-message {
+        padding: 10px;
+      }
+      
+      .quick-replies {
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+      
+      .quick-reply {
+        flex: 1 1 auto;
+        min-width: 80px;
+        font-size: 8px;
+        padding: 4px 6px;
+      }
+    }
+
+    /* High DPI / Retina displays */
+    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+      .profile-avatar {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      }
+      
+      .message-content {
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      }
+      
+      .send-button {
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+      }
+    }
+
+    /* Accessibility improvements */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      
+      .status-indicator {
+        animation: none;
+      }
+      
+      .typing-dots span {
+        animation: none;
+        opacity: 0.7;
+      }
+    }
+
+    /* High contrast mode */
+    @media (prefers-contrast: high) {
+      .chat-container {
+        border: 2px solid #000;
+      }
+      
+      .user .message-content {
+        background: #000;
+        color: #fff;
+        border: 1px solid #fff;
+      }
+      
+      .bot .message-content {
+        background: #fff;
+        color: #000;
+        border: 1px solid #000;
+      }
+      
+      .send-button {
+        border: 2px solid #fff;
+      }
+      
+      input {
+        border: 2px solid #000;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">
+      <div class="profile-info">
+        <div class="profile-avatar">JF</div>
+        <div class="profile-details">
+          <h2>John Fernandez</h2>
+          <p>Software Development Student | Web Developer</p>
+        </div>
+      </div>
+      <div><span class="status-indicator"></span>Available for opportunities</div>
+    </div>
+    
+    <div class="chat-box" id="chatBox">
+      <div class="welcome-message">
+        👋 <strong>Welcome to my Interactive Portfolio!</strong><br>
+        I'm John Fernandez, a passionate software development student from Tamil Nadu. <br>
+        Ask me anything about my education, skills, projects, or experience!
+        
+        <div class="quick-replies">
+          <span class="quick-reply" onclick="sendQuickReply('tell me about yourself')">👨‍💻 About Me</span>
+          <span class="quick-reply" onclick="sendQuickReply('what are your skills')">🚀 Skills</span>
+          <span class="quick-reply" onclick="sendQuickReply('show me your projects')">📁 Projects</span>
+          <span class="quick-reply" onclick="sendQuickReply('education background')">🎓 Education</span>
+          <span class="quick-reply" onclick="sendQuickReply('contact information')">📞 Contact</span>
+          <span class="quick-reply" onclick="sendQuickReply('career objective')">🎯 Career Goals</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="typing-indicator" id="typingIndicator">
+      <div class="typing-dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="input-container">
+        <input type="text" id="userInput" placeholder="Ask me about my background, skills, projects..." />
+      </div>
+      <button class="send-button" onclick="sendMessage()" id="sendButton">Send</button>
+    </div>
+  </div>
+
+  <script>
+    // Get DOM elements
+    const chatBox = document.getElementById("chatBox");
+    const userInput = document.getElementById("userInput");
+    const sendButton = document.getElementById("sendButton");
+    const typingIndicator = document.getElementById("typingIndicator");
+
+    // Portfolio data
+    const portfolioData = {
+      personalInfo: {
+        name: "John Fernandez",
+        phone: "+91 7373172073",
+        email: "johnfernandez308@gmail.com",
+        location: "Kallakurichi, Tamil Nadu",
+        linkedin: "linkedin.com/johnfernandezl"
+      },
+      
+      education: {
+        current: "Bachelor of Vocational Software Development and System Administration (2022-25)",
+        college: "St. Joseph's College (Autonomous) - Tiruchirappalli",
+        cgpa: "8.63/10",
+        previous: "SSLC and Higher Secondary from St. Joseph Higher Secondary School - Eraiyur (2020-22)",
+        stream: "Science Stream"
+      },
+      
+      technicalSkills: {
+        webDesign: ["HTML", "CSS"],
+        programming: ["Python"],
+        database: ["MySQL"],
+        tools: ["Canva", "Figma", "GitHub", "MS Office"]
+      },
+      
+      softSkills: [
+        "Project Management",
+        "Public Relations", 
+        "Teamwork",
+        "Time Management",
+        "Leadership",
+        "Effective Communication"
+      ],
+      
+      projects: [
+        {
+          name: "Student Management System",
+          description: "Developed a PHP-MySQL web app to manage student data (name, contact, class, address, blood group, photo) with a simple, user-friendly interface.",
+          technologies: ["PHP", "MySQL"]
+        },
+        {
+          name: "Local Chatbot Portfolio", 
+          description: "Built a personal portfolio with a chatbot using HTML, CSS, and JavaScript to guide visitors and answer common questions, focusing on clean UI/UX.",
+          technologies: ["HTML", "CSS", "JavaScript"]
+        },
+        {
+          name: "Tic Tac Toe Web Application",
+          description: "Created a two-player Tic Tac Toe game with HTML, CSS, and JavaScript, including game logic, win/draw detection, reset, and responsive design.",
+          technologies: ["HTML", "CSS", "JavaScript"]
+        }
+      ],
+      
+      certifications: [
+        "Web Development for Beginners - Simplilearn",
+        "Introduction to Prompt Engineering with GitHub Copilot - Simplilearn"
+      ],
+      
+      workshops: [
+        "UI/UX designing - Organized by Department of BVoc. Software Development and System Administration (November 2023)"
+      ],
+      
+      languages: ["English (Intermediate)", "Tamil (Fluent)"],
+      
+      careerObjective: "Motivated and eager to start my professional journey, I seek an entry-level role in a growth-oriented organization where I can apply my academic knowledge and project experience. With a strong willingness to learn and adapt, I aim to contribute effectively while developing both technical and interpersonal skills for a long-term, impactful career."
+    };
+
+    // Response system
+    const responses = {
+      "tell me about yourself": "Hi! I'm John Fernandez 👨‍💻, a passionate software development student from Kallakurichi, Tamil Nadu. I'm currently pursuing my Bachelor's in Vocational Software Development and System Administration at St. Joseph's College, Tiruchirappalli with a strong CGPA of 8.63/10. I love creating web applications and have hands-on experience with projects like student management systems and interactive chatbots! 🚀",
+      
+      "about you": "I'm John Fernandez 👨‍💻, a passionate software development student from Kallakurichi, Tamil Nadu. I'm currently pursuing my Bachelor's in Vocational Software Development and System Administration at St. Joseph's College, Tiruchirappalli with a strong CGPA of 8.63/10. I love creating web applications and have hands-on experience with projects like student management systems and interactive chatbots! 🚀",
+      
+      "who are you": "I'm John Fernandez! 👋 A dedicated software development student with a passion for creating innovative web solutions. Currently studying at St. Joseph's College, Tiruchirappalli, and always eager to learn new technologies and take on challenging projects! 💡",
+      
+      "what are your skills": generateSkillsResponse(),
+      "skills": generateSkillsResponse(),
+      "technical skills": generateTechnicalSkillsResponse(),
+      "soft skills": generateSoftSkillsResponse(),
+      
+      "show me your projects": generateProjectsResponse(),
+      "projects": generateProjectsResponse(),
+      
+      "education": generateEducationResponse(),
+      "education background": generateEducationResponse(),
+      
+      "contact": generateContactResponse(),
+      "contact information": generateContactResponse(),
+      
+      "career objective": generateCareerObjectiveResponse(),
+      "career goals": generateCareerObjectiveResponse(),
+      "objective": generateCareerObjectiveResponse(),
+      
+      "certifications": generateCertificationsResponse(),
+      "workshops": generateWorkshopsResponse(),
+      "languages": generateLanguagesResponse(),
+      
+      "hi": "Hello! 👋 Welcome to my interactive portfolio! I'm John Fernandez, and I'm excited to share my journey in software development with you! What would you like to know about me?",
+      "hello": "Hi there! 😊 I'm John Fernandez, a passionate software development student. How can I help you learn more about my background and experience?",
+      "hey": "Hey! 🤗 Great to meet you! I'm John, and I love talking about technology, projects, and opportunities. What interests you most?",
+      
+      "thanks": "You're absolutely welcome! 🙏 Thank you for taking the time to learn about my background! Feel free to ask anything else!",
+      "thank you": "It's my pleasure! 💕 I'm happy to share my journey and experiences with you!",
+      
+      "bye": "Thank you so much for visiting my portfolio! 👋 It was wonderful sharing my journey with you. Feel free to reach out anytime - I'd love to connect! Have an amazing day! 🌟",
+      "goodbye": "Goodbye! ✨ Thanks for the great conversation! Don't forget to connect with me if you have any opportunities or just want to chat about tech! 🚀"
+    };
+
+    // Response generators
+    function generateSkillsResponse() {
+      return `Here are my technical skills! 💪<br><br><strong>🎨 Web Design:</strong><br>${portfolioData.technicalSkills.webDesign.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}<br><br><strong>💻 Programming:</strong><br>${portfolioData.technicalSkills.programming.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}<br><br><strong>🗄️ Database:</strong><br>${portfolioData.technicalSkills.database.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}<br><br><strong>🛠️ Tools:</strong><br>${portfolioData.technicalSkills.tools.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}<br><br><strong>🤝 Soft Skills:</strong><br>${portfolioData.softSkills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}`;
+    }
+
+    function generateTechnicalSkillsResponse() {
+      return `My technical expertise includes! 🔧<br><br><strong>🎨 Web Design:</strong><br>${portfolioData.technicalSkills.webDesign.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}<br><br><strong>💻 Programming:</strong><br>${portfolioData.technicalSkills.programming.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}<br><br><strong>🗄️ Database:</strong><br>${portfolioData.technicalSkills.database.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}<br><br><strong>🛠️ Tools:</strong><br>${portfolioData.technicalSkills.tools.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}`;
+    }
+
+    function generateSoftSkillsResponse() {
+      return `These are my key soft skills! 🌟<br><br>${portfolioData.softSkills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}<br><br>I believe these interpersonal skills complement my technical abilities and help me work effectively in team environments! 🤝`;
+    }
+
+    function generateProjectsResponse() {
+      return `Here are my key projects! 🚀<br><br>${portfolioData.projects.map(project => `<div class="project-card"><div class="project-title">📁 ${project.name}</div><div>${project.description}</div><div style="margin-top: 8px;"><strong>Technologies:</strong> ${project.technologies.map(tech => `<span class="skill-tag">${tech}</span>`).join('')}</div></div>`).join('')}`;
+    }
+
+    function generateEducationResponse() {
+      return `<strong>🎓 Current Education:</strong><br><div class="contact-info">${portfolioData.education.current}<br><strong>College:</strong> ${portfolioData.education.college}<br><strong>CGPA:</strong> ${portfolioData.education.cgpa}</div><br><strong>📚 Previous Education:</strong><br><div class="contact-info">${portfolioData.education.previous}<br><strong>Stream:</strong> ${portfolioData.education.stream}</div><br>I'm maintaining excellent academic performance while gaining practical experience through projects! 📈`;
+    }
+
+    function generateContactResponse() {
+      return `<strong>📞 Contact Information:</strong><br><div class="contact-info"><strong>📱 Phone:</strong> ${portfolioData.personalInfo.phone}<br><strong>📧 Email:</strong> ${portfolioData.personalInfo.email}<br><strong>📍 Location:</strong> ${portfolioData.personalInfo.location}<br><strong>💼 LinkedIn:</strong> ${portfolioData.personalInfo.linkedin}</div><br>Feel free to reach out for opportunities or collaborations! I'm always excited to connect! 🤝`;
+    }
+
+    function generateCareerObjectiveResponse() {
+      return `<strong>🎯 My Career Objective:</strong><br><br><div class="contact-info">${portfolioData.careerObjective}</div><br>I'm passionate about technology and ready to contribute to innovative projects while continuously learning and growing! 🚀`;
+    }
+
+    function generateCertificationsResponse() {
+      return `<strong>🏆 My Certifications:</strong><br><br>${portfolioData.certifications.map(cert => `<div class="project-card">📜 ${cert}</div>`).join('')}<br>Always learning and improving my skills! 📚✨`;
+    }
+
+    function generateWorkshopsResponse() {
+      return `<strong>🛠️ Workshops Attended:</strong><br><br>${portfolioData.workshops.map(workshop => `<div class="project-card">🎨 ${workshop}</div>`).join('')}<br>Hands-on learning experiences that enhanced my practical skills! 💡`;
+    }
+
+    function generateLanguagesResponse() {
+      return `<strong>🌍 Languages I Speak:</strong><br><br>${portfolioData.languages.map(lang => `<span class="skill-tag">${lang}</span>`).join('')}<br><br>Communication is key in any collaborative environment! 🗣️`;
+    }
+
+    const fallbackResponses = [
+      "That's an interesting question! 🤔 Could you be more specific? I'd love to share details about my education, projects, skills, or experience!",
+      "I'm not sure I understand that completely! 🤷‍♂️ Feel free to ask about my technical skills, projects, education, or contact information!",
+      "Great question! 💭 Try asking about my background, projects, skills, or anything from my portfolio. I'm here to help!",
+      "I'd love to help you with that! 🎯 You can ask me about my education, technical skills, projects, certifications, or career goals!",
+      "Hmm, let me think about that! 🧐 Meanwhile, feel free to explore my skills, projects, education background, or contact information!",
+      "That's interesting! 💡 I'm always excited to discuss my journey in software development. What specific area would you like to know about?"
+    ];
+
+    // Utility functions
+    function getCurrentTime() {
+      return new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    }
+
+    function addMessage(sender, text) {
+      const messageDiv = document.createElement("div");
+      messageDiv.className = `message ${sender}`;
+      
+      const messageContent = document.createElement("div");
+      messageContent.className = "message-content";
+      messageContent.innerHTML = text;
+      
+      const timestamp = document.createElement("div");
+      timestamp.className = "timestamp";
+      timestamp.textContent = getCurrentTime();
+      
+      messageContent.appendChild(timestamp);
+      messageDiv.appendChild(messageContent);
+      chatBox.appendChild(messageDiv);
+      
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function getBotResponse(input) {
+      const normalizedInput = input.toLowerCase().trim();
+      
+      // Check for exact matches first
+      for (const [key, response] of Object.entries(responses)) {
+        if (normalizedInput.includes(key)) {
+          return typeof response === 'function' ? response() : response;
+        }
+      }
+      
+      // Keyword matching
+      const keywords = {
+        "php": "I used PHP for my Student Management System project! It's a great server-side language for web development. Combined with MySQL, I created a functional web application for managing student data! 💻",
+        "mysql": "MySQL is one of my core database skills! I've used it in my Student Management System project to store and retrieve student information efficiently. Database management is crucial for web applications! 🗄️",
+        "html": "HTML is one of my foundational web design skills! I've used it in multiple projects including my chatbot portfolio and Tic Tac Toe game. It's the backbone of web development! 🌐",
+        "css": "CSS is essential for creating beautiful, responsive web interfaces! I've used it to style all my web projects, focusing on clean UI/UX design. Visual appeal matters! 🎨",
+        "javascript": "JavaScript brings interactivity to web pages! I've used it extensively in my chatbot portfolio and Tic Tac Toe game to create dynamic user experiences. It's such a versatile language! ⚡",
+        "python": "Python is my primary programming language! I love its simplicity and versatility. It's great for both beginners and advanced development projects. 🐍",
+        "github": "I use GitHub for version control and project management! It's essential for collaborative development and showcasing my code. You can find my projects there! 📂",
+        "figma": "Figma is my go-to tool for UI/UX design! I use it to create wireframes and prototypes before coding. Good design planning leads to better user experiences! 🎨",
+        "canva": "I use Canva for creating graphics and visual content! It's great for presentations, social media content, and design elements for my projects! 🖼️"
+      };
+      
+      for (const [keyword, response] of Object.entries(keywords)) {
+        if (normalizedInput.includes(keyword)) {
+          return response;
+        }
+      }
+      
+      // Return random fallback
+      return fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
+    }
+
+    function showTypingIndicator() {
+      typingIndicator.style.display = "block";
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function hideTypingIndicator() {
+      typingIndicator.style.display = "none";
+    }
+
+    function sendMessage() {
+      const input = userInput.value.trim();
+      if (!input) return;
+
+      sendButton.disabled = true;
+      sendButton.textContent = "Sending...";
+
+      addMessage("user", input);
+      showTypingIndicator();
+      
+      setTimeout(() => {
+        const response = getBotResponse(input);
+        hideTypingIndicator();
+        addMessage("bot", response);
+        
+        sendButton.disabled = false;
+        sendButton.textContent = "Send";
+      }, Math.random() * 1000 + 800);
+
+      userInput.value = "";
+      userInput.focus();
+    }
+
+    function sendQuickReply(message) {
+      userInput.value = message;
+      sendMessage();
+    }
+
+    // Event listeners
+    userInput.addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        sendMessage();
+      }
+    });
+
+    // Initialize
+    userInput.focus();
+  </script>
+</body>
+</html>
